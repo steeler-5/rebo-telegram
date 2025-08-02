@@ -1,0 +1,6 @@
+services:
+  - type: worker
+    name: rebo-telegram
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
