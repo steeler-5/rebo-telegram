@@ -1,48 +1,41 @@
 import os
-import time
 import requests
-from agent_core import chat_with_bot
+from time import sleep
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-print("🧪 Loaded TELEGRAM_BOT_TOKEN:", BOT_TOKEN)
-if not BOT_TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-print("🔗 Telegram check:", requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getMe").text)
+try:
+    print("🐍 Rebo Telegram Poller Starting...")
 
-def get_updates(offset=None):
-    params = {"timeout": 60}
-    if offset:
-        params["offset"] = offset
-    response = requests.get(f"{API_URL}/getUpdates", params=params)
-    return response.json()["result"]
+    BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    print("🧪 Loaded TELEGRAM_BOT_TOKEN:", BOT_TOKEN)
 
-def send_message(chat_id, text):
-    payload = {"chat_id": chat_id, "text": text}
-    requests.post(f"{API_URL}/sendMessage", data=payload)
+    if not BOT_TOKEN:
+        raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
 
-def handle_message(message):
-    chat_id = message["chat"]["id"]
-    text = message.get("text", "")
-    print(f"📩 Message from {chat_id}: {text}")
-    reply = chat_with_bot(text)
-    print(f"🤖 Rebo says: {reply}")
-    send_message(chat_id, reply)
+    # Check Telegram connection
+    response = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getMe")
+    print("🔗 Telegram check:", response.text)
 
-print("🚀 Polling started...")
-def poll():
+    # Start polling loop
+    offset = None
     print("🚀 Polling started...")
-    last_update_id = None
     while True:
-        try:
-            updates = get_updates(offset=last_update_id)
-            for update in updates:
-                last_update_id = update["update_id"] + 1
-                if "message" in update:
-                    handle_message(update["message"])
-        except Exception as e:
-            print("🔥 Polling error:", e)
-        time.sleep(2)
+        res = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates", params={"offset": offset, "timeout": 10})
+        updates = res.json()
 
-if __name__ == "__main__":
-    poll()
+        if updates.get("ok") and updates.get("result"):
+            for update in updates["result"]:
+                offset = update["update_id"] + 1
+                chat_id = update["message"]["chat"]["id"]
+                message_text = update["message"]["text"]
+
+                print(f"📩 Message from {chat_id}: {message_text}")
+
+                reply_text = f"🧠 Rebo here! You said: {message_text}"
+                requests.post(
+                    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                    json={"chat_id": chat_id, "text": reply_text},
+                )
+        sleep(1)
+
+except Exception as e:
+    print("❌ ERROR in telegram_poller.py:", e)
