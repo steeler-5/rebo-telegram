@@ -8,6 +8,7 @@ print("🧪 Loaded TELEGRAM_BOT_TOKEN:", BOT_TOKEN)
 if not BOT_TOKEN:
     raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+print("🔗 Telegram check:", requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getMe").text)
 
 def get_updates(offset=None):
     params = {"timeout": 60}
