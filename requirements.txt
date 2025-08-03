@@ -6,7 +6,7 @@ langchain-openai
 python-dotenv
 langchain-community
 beautifulsoup4
-# python-telegram-bot-20.0
+python-telegram-bot-13.15
 web3
 pandas
 solana
