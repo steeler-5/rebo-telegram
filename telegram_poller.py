@@ -4,6 +4,9 @@ import requests
 from agent_core import chat_with_bot
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+print("🧪 Loaded TELEGRAM_BOT_TOKEN:", BOT_TOKEN)
+if not BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN is not set!")
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 def get_updates(offset=None):
@@ -25,6 +28,7 @@ def handle_message(message):
     print(f"🤖 Rebo says: {reply}")
     send_message(chat_id, reply)
 
+print("🚀 Polling started...")
 def poll():
     print("🚀 Polling started...")
     last_update_id = None
