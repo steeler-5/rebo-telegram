@@ -1,4 +1,13 @@
 requests
 python-dotenv
+langchain
 openai
+langchain-openai
+python-dotenv
+langchain-community
+beautifulsoup4
+python-telegram-bot-20.0
+web3
 pandas
+solana
+joblib
